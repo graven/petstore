@@ -168,7 +168,7 @@
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
-
+        <!-- Logging dependencies-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -180,6 +180,31 @@
             <version>1.2.16</version>
         </dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>org.springsource.maven.snapshot</id>
+			<name>SpringSource Maven Central-compatible Snapshot Repository</name>
+			<url>http://maven.springframework.org/snapshot</url>
+			<snapshots>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>JBoss repository</id>
+			<url>http://repository.jboss.com/maven2</url>
+		</repository>
+
+		<repository>
+			<id>com.springsource.repository.bundles.release</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>com.springsource.repository.bundles.external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+	</repositories>
 	<build>
 		<resources>
 			<resource>
