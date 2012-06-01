@@ -8,7 +8,7 @@
 	<packaging>war</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	<properties>
-		<spring.version>3.0.0.BUILD-SNAPSHOT</spring.version>
+		<spring.version>3.1.0.RELEASE</spring.version>
 		<tiles.version>2.2.0</tiles.version>
 		<hsqldb.version>1.8.0.7</hsqldb.version>
 		<commons-fileupload.version>1.2.1</commons-fileupload.version>
@@ -168,32 +168,23 @@
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-api</artifactId>-->
+            <!--<version>1.6.1</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.5.8</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>org.springsource.maven.snapshot</id>
-			<name>SpringSource Maven Central-compatible Snapshot Repository</name>
-			<url>http://maven.springframework.org/snapshot</url>
-			<snapshots>
-				<updatePolicy>daily</updatePolicy>
-			</snapshots>
-		</repository>	
-		<repository>
-			<id>JBoss repository</id>
-			<url>http://repository.jboss.com/maven2</url>
-		</repository>
-	
-		<repository>
-			<id>com.springsource.repository.bundles.release</id>
-			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/release</url>
-		</repository>
-		<repository>
-			<id>com.springsource.repository.bundles.external</id>
-			<name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-			<url>http://repository.springsource.com/maven/bundles/external</url>
-		</repository>
-	</repositories>
 	<build>
 		<resources>
 			<resource>
