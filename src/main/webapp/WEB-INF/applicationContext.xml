@@ -91,15 +91,14 @@
 
 	<!-- ========================= REMOTE EXPORTER DEFINITIONS ======================== -->
 
-	<!-- RMI exporter for the JPetStore OrderService -->
+	 <!--RMI exporter for the JPetStore OrderService -->
 	<!-- Commented out by default to avoid conflicts with EJB containers -->
-	<!--
+
 	<bean id="order-rmi" class="org.springframework.remoting.rmi.RmiServiceExporter">
 		<property name="service" ref="petStore"/>
 		<property name="serviceInterface" value="org.springframework.samples.jpetstore.domain.logic.OrderService"/>
 		<property name="serviceName" value="order"/>
 		<property name="registryPort" value="1099"/>
 	</bean>
-	-->
 
 </beans>
