@@ -112,4 +112,11 @@
 		<property name="petStore" ref="petStore"/>
 	</bean>
 
+    <bean name="/status.do" class="org.springframework.samples.jpetstore.web.spring.InstancesController">
+        <property name="instanceDao" ref="instanceDao"/>
+    </bean>
+
+    <bean id="init" class="org.springframework.samples.jpetstore.service.Initialization" init-method="init" scope="singleton" destroy-method="destroy">
+        <property name="instanceDao" ref="instanceDao"/>
+    </bean>
 </beans>

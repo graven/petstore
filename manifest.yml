@@ -1,5 +1,9 @@
 launch:
     parameters:
+        accessKey:
+            description: AWS Access Key
+        secretKey:
+            description: AWS Secret Key
         dbCount:
             description: count db nodes
             default: 1
@@ -22,18 +26,30 @@ launch:
             parameters:
                 roleName: "dbnode"
                 quantity: $dbCount
+                jcloudsIdentity: $accessKey
+                jcloudsCredential: $secretKey
+            output:
+                 dbhosts: ips
 
         provisionApp:
             action: "provisionAmazonVm"
             parameters:
                 roleName: "appnode"
                 quantity: $appCount
+                jcloudsIdentity: $accessKey
+                jcloudsCredential: $secretKey
+            output:
+                apphosts: ips
 
         provisionLB:
             action: "provisionAmazonVm"
             parameters:
                 roleName: "lbnode"
                 quantity: $lbCount
+                jcloudsIdentity: $accessKey
+                jcloudsCredential: $secretKey
+            output:
+                publicIp: ips
 
         installDB:
             action: "install"
@@ -41,26 +57,44 @@ launch:
                 phase: "deploydb"
                 precedingPhases: ["provision"]
                 roles: ["dbnode"]
-                runList: ["recipe[mysql:server]", "recipe[petstore::mysql]"]
+                runList: ["recipe[mysql::server]", "recipe[petstore::mysql]"]
 
         installApp:
             action: "install"
             parameters:
-                phase: "deployxwiki"
+                phase: "deploypetstore"
                 precedingPhases: ["deploydb"]
                 roles: ["appnode"]
                 runList: ["recipe[tomcat]", "recipe[petstore]"]
+                jattrs:
+                    petstore:
+                        db:
+                            host: $dbhosts
+                        app:
+                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-1.0.0-SNAPSHOT.war"
 
         installLB:
             action: "install"
             parameters:
                 phase: "deploylb"
-                precedingPhases: ["deployxwiki"]
+                precedingPhases: ["deploypetstore"]
                 roles: ["lbnode"]
-                runList: ["recipe[haproxy]", "recipe[petstore:lb]"]
+                runList: ["recipe[haproxy]", "recipe[petstore::lb]"]
+                jattrs:
+                    petstore:
+                        lb:
+                            nodes: $apphosts
+    return:
+        appUrl:
+            description: Url to the application
+            value: http://${publicIp}
 
-scaleUpApp:
+scaleUp:
     parameters:
+        accessKey:
+            description: AWS Access Key
+        secretKey:
+            description: AWS Secret Key
         appCount:
             description: count app nodes
             default: 1
@@ -68,26 +102,42 @@ scaleUpApp:
             max: 20
     steps:
         provisionApp:
-            action: "amazonVM"
+            action: "provisionAmazonVm"
             parameters:
                 roleName: "appnode"
                 quantity: $appCount
+                jcloudsIdentity: $accessKey
+                jcloudsCredential: $secretKey
+            output:
+                apphosts: ips
 
         installApp:
-            action: "installXwiki"
+            action: "install"
             parameters:
-                phase: "deployxwiki"
-                precedingPhases: ["deploydb"]
+                phase: "deploypetstore"
+                precedingPhases: ["provision"]
                 roles: ["appnode"]
+                runList: ["recipe[tomcat]", "recipe[petstore]"]
+                jattrs:
+                    petstore:
+                        db:
+                            host: $dbhosts
+                        app:
+                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-1.0.0-SNAPSHOT.war"
 
         updateLB:
-            action: "updateHAProxy"
+            action: "install"
             parameters:
                 phase: "deploylb"
-                precedingPhases: ["deployxwiki"]
+                precedingPhases: ["deploypetstore"]
                 roles: ["lbnode"]
+                runList: ["recipe[haproxy]", "recipe[petstore::lb]"]
+                jattrs:
+                    petstore:
+                        lb:
+                            nodes: $apphosts
 
-scaleDownApp:
+scaleDown:
     parameters:
         appCount:
             description: count app nodes
@@ -96,30 +146,31 @@ scaleDownApp:
             max: 20
     steps:
         destoryApp:
-            action: "destroyVM"
+            action: "undeployEnv"
             parameters:
+                phase: "destroy"
                 roleName: "appnode"
                 quantity: $appCount
 
-updateApp:
+update:
     parameters:
-        appRevision:
-            description: revesion for app artifacts
-            default: "last"
-    steps:
-        update:
-            action: "updateXWiki"
-            parameters:
-                roleName: "appnode"
-                jattrs:
-                    revision: $appRevision
+        war:
+            description: url for application
+            default: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-1.0.0-SNAPSHOT.war"
 
-testSuite:
     steps:
-        tests:
-            action: "runTestSuite4XWiki"
+        installApp:
+            action: "install"
             parameters:
-                roleName: "lbnode"
+                phase: "deploypetstore"
+                roles: ["appnode"]
+                runList: ["recipe[tomcat]", "recipe[petstore]"]
+                jattrs:
+                    petstore:
+                        db:
+                            host: $dbhosts
+                        app:
+                            war: $war
 
 destroy:
   steps:

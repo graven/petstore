@@ -63,6 +63,10 @@
 		<property name="sequenceDao" ref="sequenceDao"/>
 	</bean>
 
+    <bean id="instanceDao" class="org.springframework.samples.jpetstore.dao.ibatis.SqlMapInstanceDao">
+        <property name="sqlMapClient" ref="sqlMapClient"/>
+    </bean>
+
 	<!-- OrderDao definition for MS SQL Server -->
 	<!-- (to be used instead of the default orderDao) -->
 	<!--
@@ -85,5 +89,4 @@
 		<property name="sqlMapClient" ref="sqlMapClient"/>
 	</bean>
 	-->
-
 </beans>

@@ -100,5 +100,4 @@
 		<property name="serviceName" value="order"/>
 		<property name="registryPort" value="1099"/>
 	</bean>
-
 </beans>

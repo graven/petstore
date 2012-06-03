@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Instance">
+    <select id="getCountInstances" resultClass="java.lang.Integer">
+        select count(*) from instance
+    </select>
+
+    <insert id="insertInstance">
+        insert into instance (ipaddress) values (#ip#)
+    </insert>
+
+    <delete id="deleteInstance">
+        delete form instance where ipaddress = #ip#
+    </delete>
+
+    <select id="searchInstance" resultClass="java.lang.String">
+        select ipaddress from instance where ipaddress = #ip#
+    </select>
+</sqlMap>

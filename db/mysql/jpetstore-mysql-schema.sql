@@ -1,5 +1,14 @@
 use jpetstore;
 
+create table if not exists instance (
+    ip varchar(80) not null,
+primary key (ip))
+type=innodb
+min_rows=0
+max_rows=1000
+pack_keys=default
+row_format=default;
+
 create table if not exists supplier (
    suppid int not null, 
     name varchar(80) null,
@@ -27,7 +36,7 @@ min_rows=0
 max_rows=1000  
 pack_keys=default 
 row_format=default 
-comment='cadastro de usuários';
+comment='cadastro de usuï¿½rios';
 
 create table if not exists account (
     userid varchar(80) not null,
