@@ -45,49 +45,50 @@
     </bean>
 
     <!-- Proxy for the JAX-RPC/Axis-exported OrderService -->
-    <bean id="jaxRpcProxy" class="org.springframework.remoting.jaxrpc.JaxRpcPortProxyFactoryBean">
-        <property name="serviceFactoryClass" value="org.apache.axis.client.ServiceFactory"/>
-        <property name="wsdlDocumentUrl" value="http://${serverName}:${httpPort}${contextPath}/axis/OrderService?wsdl"/>
-        <property name="namespaceUri" value="http://${serverName}:${httpPort}${contextPath}/axis/OrderService"/>
-        <property name="serviceName" value="JaxRpcOrderServiceService"/>
-        <property name="portName" value="OrderService"/>
-        <property name="serviceInterface" value="org.springframework.samples.jpetstore.domain.logic.OrderService"/>
-        <!--
-          If you want to work with a JAX-RPC port stub underneath, you need to specify
-          an RMI interface to use at the JAX-RPC port level. This might give advantages
-          on certain JAX-RPC implementations. If not specified, JAX-RPC dynamic calls
-          will be used, which has been tested to work nicely on Apache Axis.
-          -->
+    <!---->
+    <!--<bean id="jaxRpcProxy" class="org.springframework.remoting.jaxrpc.JaxRpcPortProxyFactoryBean">-->
+        <!--<property name="serviceFactoryClass" value="org.apache.axis.client.ServiceFactory"/>-->
+        <!--<property name="wsdlDocumentUrl" value="http://${serverName}:${httpPort}${contextPath}/axis/OrderService?wsdl"/>-->
+        <!--<property name="namespaceUri" value="http://${serverName}:${httpPort}${contextPath}/axis/OrderService"/>-->
+        <!--<property name="serviceName" value="JaxRpcOrderServiceService"/>-->
+        <!--<property name="portName" value="OrderService"/>-->
+        <!--<property name="serviceInterface" value="org.springframework.samples.jpetstore.domain.logic.OrderService"/>-->
+        <!--&lt;!&ndash;-->
+          <!--If you want to work with a JAX-RPC port stub underneath, you need to specify-->
+          <!--an RMI interface to use at the JAX-RPC port level. This might give advantages-->
+          <!--on certain JAX-RPC implementations. If not specified, JAX-RPC dynamic calls-->
+          <!--will be used, which has been tested to work nicely on Apache Axis.-->
+          <!--&ndash;&gt;-->
 
-        <!--
-        <property name="portInterface" value="org.springframework.samples.jpetstore.service.JaxRpcOrderService"/>
-        -->
+        <!--&lt;!&ndash;-->
+        <!--<property name="portInterface" value="org.springframework.samples.jpetstore.service.JaxRpcOrderService"/>-->
+        <!--&ndash;&gt;-->
 
-        <!--
-        <property name="servicePostProcessors">
-            <list>
-                <bean class="org.springframework.remoting.jaxrpc.support.AxisBeanMappingServicePostProcessor">
-                    <property name="encodingStyleUri" value="http://schemas.xmlsoap.org/soap/encoding/"/>
-                    <property name="typeNamespaceUri" value="urn:JPetStore"/>
-                    <property name="beanClasses">
-                        <list>
-                            <value>org.springframework.samples.jpetstore.domain.Order</value>
-                            <value>org.springframework.samples.jpetstore.domain.LineItem</value>
-                            <value>org.springframework.samples.jpetstore.domain.Item</value>
-                            <value>org.springframework.samples.jpetstore.domain.Product</value>
-                        </list>
-                    </property>
-                </bean>
-            </list>
-        </property>
-        -->
-    </bean>
+        <!--&lt;!&ndash;-->
+        <!--<property name="servicePostProcessors">-->
+            <!--<list>-->
+                <!--<bean class="org.springframework.remoting.jaxrpc.support.AxisBeanMappingServicePostProcessor">-->
+                    <!--<property name="encodingStyleUri" value="http://schemas.xmlsoap.org/soap/encoding/"/>-->
+                    <!--<property name="typeNamespaceUri" value="urn:JPetStore"/>-->
+                    <!--<property name="beanClasses">-->
+                        <!--<list>-->
+                            <!--<value>org.springframework.samples.jpetstore.domain.Order</value>-->
+                            <!--<value>org.springframework.samples.jpetstore.domain.LineItem</value>-->
+                            <!--<value>org.springframework.samples.jpetstore.domain.Item</value>-->
+                            <!--<value>org.springframework.samples.jpetstore.domain.Product</value>-->
+                        <!--</list>-->
+                    <!--</property>-->
+                <!--</bean>-->
+            <!--</list>-->
+        <!--</property>-->
+        <!--&ndash;&gt;-->
+    <!--</bean>-->
 
-    <!-- Proxy for the RMI-exported OrderService -->
-    <!-- Commented out by default to avoid conflicts with EJB containers -->
-     <bean id="rmiProxy" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
-         <property name="serviceUrl" value="rmi://${serverName}:${rmiPort}/order"/>
-         <property name="serviceInterface" value="org.springframework.samples.jpetstore.domain.logic.OrderService"/>
-     </bean>
+    <!--&lt;!&ndash; Proxy for the RMI-exported OrderService &ndash;&gt;-->
+    <!--&lt;!&ndash; Commented out by default to avoid conflicts with EJB containers &ndash;&gt;-->
+     <!--<bean id="rmiProxy" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">-->
+         <!--<property name="serviceUrl" value="rmi://${serverName}:${rmiPort}/order"/>-->
+         <!--<property name="serviceInterface" value="org.springframework.samples.jpetstore.domain.logic.OrderService"/>-->
+     <!--</bean>-->
 
 </beans>
