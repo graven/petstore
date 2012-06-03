@@ -1,0 +1,129 @@
+launch:
+    parameters:
+        dbCount:
+            description: count db nodes
+            default: 1
+            min: 1
+            max: 20
+        appCount:
+            description: count app nodes
+            default: 1
+            min: 1
+            max: 20
+        lbCount:
+            description: count lb nodes
+            default: 1
+            min: 1
+            max: 20
+
+    steps:
+        provisionDB:
+            action: "provisionAmazonVm"
+            parameters:
+                roleName: "dbnode"
+                quantity: $dbCount
+
+        provisionApp:
+            action: "provisionAmazonVm"
+            parameters:
+                roleName: "appnode"
+                quantity: $appCount
+
+        provisionLB:
+            action: "provisionAmazonVm"
+            parameters:
+                roleName: "lbnode"
+                quantity: $lbCount
+
+        installDB:
+            action: "install"
+            parameters:
+                phase: "deploydb"
+                precedingPhases: ["provision"]
+                roles: ["dbnode"]
+                runList: ["recipe[mysql:server]", "recipe[petstore::mysql]"]
+
+        installApp:
+            action: "install"
+            parameters:
+                phase: "deployxwiki"
+                precedingPhases: ["deploydb"]
+                roles: ["appnode"]
+                runList: ["recipe[tomcat]", "recipe[petstore]"]
+
+        installLB:
+            action: "install"
+            parameters:
+                phase: "deploylb"
+                precedingPhases: ["deployxwiki"]
+                roles: ["lbnode"]
+                runList: ["recipe[haproxy]", "recipe[petstore:lb]"]
+
+scaleUpApp:
+    parameters:
+        appCount:
+            description: count app nodes
+            default: 1
+            min: 1
+            max: 20
+    steps:
+        provisionApp:
+            action: "amazonVM"
+            parameters:
+                roleName: "appnode"
+                quantity: $appCount
+
+        installApp:
+            action: "installXwiki"
+            parameters:
+                phase: "deployxwiki"
+                precedingPhases: ["deploydb"]
+                roles: ["appnode"]
+
+        updateLB:
+            action: "updateHAProxy"
+            parameters:
+                phase: "deploylb"
+                precedingPhases: ["deployxwiki"]
+                roles: ["lbnode"]
+
+scaleDownApp:
+    parameters:
+        appCount:
+            description: count app nodes
+            default: 1
+            min: 1
+            max: 20
+    steps:
+        destoryApp:
+            action: "destroyVM"
+            parameters:
+                roleName: "appnode"
+                quantity: $appCount
+
+updateApp:
+    parameters:
+        appRevision:
+            description: revesion for app artifacts
+            default: "last"
+    steps:
+        update:
+            action: "updateXWiki"
+            parameters:
+                roleName: "appnode"
+                jattrs:
+                    revision: $appRevision
+
+testSuite:
+    steps:
+        tests:
+            action: "runTestSuite4XWiki"
+            parameters:
+                roleName: "lbnode"
+
+destroy:
+  steps:
+    - undeployEnv:
+        action: "undeployEnv"
+        parameters:
+          phase: "destroy"
