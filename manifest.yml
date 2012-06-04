@@ -131,7 +131,7 @@ scaleUp:
                 phase: "deploylb"
                 precedingPhases: ["deploypetstore"]
                 roles: ["lbnode"]
-                runList: ["recipe[haproxy]", "recipe[petstore::lb]"]
+                runList: ["recipe[petstore::lb]"]
                 jattrs:
                     petstore:
                         lb:
@@ -164,7 +164,7 @@ update:
             parameters:
                 phase: "deploypetstore"
                 roles: ["appnode"]
-                runList: ["recipe[tomcat]", "recipe[petstore]"]
+                runList: ["recipe[petstore]"]
                 jattrs:
                     petstore:
                         db:
