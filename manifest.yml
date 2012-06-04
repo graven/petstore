@@ -128,7 +128,7 @@ scaleUp:
         updateLB:
             action: "install"
             parameters:
-                phase: "deploylb"
+                phase: "updatelb"
                 precedingPhases: ["deploypetstore"]
                 roles: ["lbnode"]
                 runList: ["recipe[petstore::lb]"]
@@ -146,11 +146,23 @@ scaleDown:
             max: 20
     steps:
         destoryApp:
-            action: "undeployEnv"
+            action: "destroyVms"
             parameters:
                 phase: "destroy"
                 roleName: "appnode"
                 quantity: $appCount
+
+        updateLB:
+            action: "install"
+            parameters:
+                phase: "updatelb"
+                precedingPhases: ["destroy"]
+                roles: ["lbnode"]
+                runList: ["recipe[petstore::lb]"]
+                jattrs:
+                    petstore:
+                        lb:
+                            nodes: $apphosts
 
 update:
     parameters:
