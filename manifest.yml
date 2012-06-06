@@ -1,192 +1,205 @@
 launch:
     parameters:
-        accessKey:
-            description: AWS Access Key
-        secretKey:
-            description: AWS Secret Key
-        dbCount:
-            description: count db nodes
+        - app-tier-size:
+            description: Number of servers in app tier
             default: 1
             min: 1
             max: 20
-        appCount:
-            description: count app nodes
-            default: 1
-            min: 1
-            max: 20
-        lbCount:
-            description: count lb nodes
-            default: 1
-            min: 1
-            max: 20
-
+        - app-version:
+            description: Version of the build artifacts
+            default: "1.0.0-SNAPSHOT"
+            enum:
+                "Latest": "1.0.0-SNAPSHOT"
+                "1.0 Stable": "1.0.0"
     steps:
-        provisionDB:
-            action: "provisionAmazonVm"
+        - provision-db-tier:
+            action: compute.grow
             parameters:
-                roleName: "dbnode"
-                quantity: $dbCount
-                jcloudsIdentity: $accessKey
-                jcloudsCredential: $secretKey
+                roleName: db-node
             output:
-                 dbhosts: ips
+                 db-hosts: ips
 
-        provisionApp:
-            action: "provisionAmazonVm"
+        - provision-app-tier:
+            action: compute.grow
             parameters:
-                roleName: "appnode"
-                quantity: $appCount
-                jcloudsIdentity: $accessKey
-                jcloudsCredential: $secretKey
+                roleName: app-node
+                quantity: $app-tier-size
             output:
-                apphosts: ips
+                app-hosts: ips
 
-        provisionLB:
-            action: "provisionAmazonVm"
+        - provision-lb:
+            action: compute.grow
             parameters:
-                roleName: "lbnode"
-                quantity: $lbCount
-                jcloudsIdentity: $accessKey
-                jcloudsCredential: $secretKey
+                roleName: lb-node
             output:
-                publicIp: ips
+                lb-hosts: ips
 
-        installDB:
-            action: "install"
+        - install-database:
+            action: mysql.install
             parameters:
-                phase: "deploydb"
-                precedingPhases: ["provision"]
-                roles: ["dbnode"]
-                runList: ["recipe[mysql::server]", "recipe[petstore::mysql]"]
+                phase: install-db
+                roles: [ db-node ]
 
-        installApp:
-            action: "install"
+        - install-app:
+            action: tomcat.install
             parameters:
-                phase: "deploypetstore"
-                precedingPhases: ["deploydb"]
-                roles: ["appnode"]
-                runList: ["recipe[tomcat]", "recipe[petstore]"]
+                phase: install-app
+                roles: [ app-node ]
+
+        - install-lb:
+            action: haproxy.install
+            parameters:
+                phase: install-lb
+                roles: [ lb-node ]
+
+        - deploy-database:
+            action: mysql.create-database
+            parameters:
+                phase: deploy-db
+                precedingPhases: [ install-db ]
+                roles: [ db-node ]
+                jattrs:
+                    setup-database:
+                        script: "https://schema-with-test-data-location"
+
+        - deploy-app:
+            action: war.deploy
+            parameters:
+                phase: deploy-app
+                precedingPhases: [ install-app ]
+                roles: [ app-node ]
                 jattrs:
                     petstore:
                         db:
-                            host: $dbhosts
+                            $db-hosts
                         app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-1.0.0-SNAPSHOT.war"
+                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
-        installLB:
-            action: "install"
+        # Strawman... We need to make this configuration action explicit. Let's discuss how it might look.
+        #- configure-datasource:
+        #    action: propfile.replace
+        #    phase: deploy-app
+        #        precedingPhases: [ deploy-app, deploy-db ]
+        #    parameters:
+        #        jattrs:
+        #            propfile.replace:
+        #                source:
+        #                    "%DB%"
+        #                target:
+        #                    $dbhosts
+
+        - setup-lb:
+            action: haproxy.rebalance
             parameters:
-                phase: "deploylb"
-                precedingPhases: ["deploypetstore"]
-                roles: ["lbnode"]
-                runList: ["recipe[haproxy]", "recipe[petstore::lb]"]
+                precedingPhases: [ deploy-app ]
+                roles: [ lb-node ]
                 jattrs:
                     petstore:
                         lb:
-                            nodes: $apphosts
+                            nodes: $app-hosts
+
     return:
-        appUrl:
+        app-url:
             description: Url to the application
-            value: http://${publicIp}
+            value: http://${lb-hosts}
 
-scaleUp:
+scale-up:
     parameters:
-        accessKey:
-            description: AWS Access Key
-        secretKey:
-            description: AWS Secret Key
-        appCount:
-            description: count app nodes
+        - app-count:
+            description: Additional servers in app tier
             default: 1
             min: 1
             max: 20
+        - app-version:
+            description: Version of the build artifacts
+            default: "1.0.0-SNAPSHOT"
+            enum:
+                "Latest": "1.0.0-SNAPSHOT"
+                "1.0 Stable": "1.0.0"
     steps:
-        provisionApp:
-            action: "provisionAmazonVm"
+        - grow-app-tier:
+            action: compute.grow
             parameters:
-                roleName: "appnode"
-                quantity: $appCount
-                jcloudsIdentity: $accessKey
-                jcloudsCredential: $secretKey
+                roleName: app-node
+                quantity: $app-count
             output:
-                apphosts: ips
+                app-hosts: ips
 
-        installApp:
-            action: "install"
+        - install-app:
+            action: tomcat.install
             parameters:
-                phase: "deploypetstore"
-                precedingPhases: ["provision"]
-                roles: ["appnode"]
-                runList: ["recipe[tomcat]", "recipe[petstore]"]
+                phase: install-app
+                roles: [ app-node ]
+
+        - deploy-app:
+            action: war.deploy
+            parameters:
+                phase: deploy-app
+                precedingPhases: [ install-app ]
+                roles: [ app-node ]
                 jattrs:
                     petstore:
                         db:
-                            host: $dbhosts
+                            $db-hosts
                         app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-1.0.0-SNAPSHOT.war"
+                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
-        updateLB:
-            action: "install"
+        - update-lb:
+            action: haproxy.rebalance
             parameters:
-                phase: "updatelb"
-                precedingPhases: ["deploypetstore"]
-                roles: ["lbnode"]
-                runList: ["recipe[petstore::lb]"]
+                precedingPhases: [ deploy-app ]
+                roles: [ lb-node ]
                 jattrs:
                     petstore:
                         lb:
-                            nodes: $apphosts
+                            nodes: $app-hosts
 
-scaleDown:
+scale-down:
     parameters:
-        appCount:
-            description: count app nodes
+        - app-count:
+            description: Number of app tier servers to remove
             default: 1
             min: 1
             max: 20
     steps:
-        destoryApp:
-            action: "destroyVms"
+        - shrink-app-tier:
+            action: compute.shrink
             parameters:
-                phase: "destroy"
-                roleName: "appnode"
-                quantity: $appCount
+                roleName: app-node
+                quantity: $app-count
 
-        updateLB:
-            action: "install"
+        - update-lb:
+            action: haproxy.rebalance
             parameters:
-                phase: "updatelb"
-                precedingPhases: ["destroy"]
-                roles: ["lbnode"]
-                runList: ["recipe[petstore::lb]"]
+                precedingPhases: [ deploy-app ]
+                roles: [ lb-node ]
                 jattrs:
                     petstore:
                         lb:
-                            nodes: $apphosts
+                            nodes: $app-hosts
 
 update:
     parameters:
-        war:
-            description: url for application
-            default: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-1.0.0-SNAPSHOT.war"
+        - app-version:
+            description: Version of the build artifacts
+            default: "1.0.0-SNAPSHOT"
+            enum:
+                Latest: "1.0.0-SNAPSHOT"
+                1.0 Stable: "1.0.0"
 
     steps:
-        installApp:
-            action: "install"
+        - redeploy-app:
+            action: war.deploy
             parameters:
-                phase: "deploypetstore"
-                roles: ["appnode"]
-                runList: ["recipe[petstore]"]
+                roles: [ app-node ]
                 jattrs:
                     petstore:
                         db:
-                            host: $dbhosts
+                            $db-hosts
                         app:
-                            war: $war
+                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
 destroy:
-  steps:
-    - undeployEnv:
-        action: "undeployEnv"
-        parameters:
-          phase: "destroy"
+    steps:
+        - destroy:
+            action: compute.shrink-all
