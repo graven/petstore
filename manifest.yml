@@ -59,8 +59,9 @@ launch:
                 precedingPhases: [ install-db ]
                 roles: [ db-node ]
                 jattrs:
-                    setup-database:
-                        script: "https://schema-with-test-data-location"
+                    database:
+                        scheme: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-mysql-schema.sql"
+                        data: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-mysql-dataload.sql"
 
         - deploy-app:
             action: war.deploy
@@ -69,11 +70,10 @@ launch:
                 precedingPhases: [ install-app ]
                 roles: [ app-node ]
                 jattrs:
-                    petstore:
-                        db:
-                            $db-hosts
-                        app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                    database:
+                        hosts: $db-hosts
+                    war:
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
         # Strawman... We need to make this configuration action explicit. Let's discuss how it might look.
         #- configure-datasource:
@@ -137,11 +137,10 @@ scale-up:
                 precedingPhases: [ install-app ]
                 roles: [ app-node ]
                 jattrs:
-                    petstore:
-                        db:
-                            $db-hosts
-                        app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                    database:
+                        hosts: $db-hosts
+                    war:
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
         - update-lb:
             action: haproxy.rebalance
@@ -190,11 +189,10 @@ update:
             parameters:
                 roles: [ app-node ]
                 jattrs:
-                    petstore:
-                        db:
-                            $db-hosts
-                        app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                    database:
+                        hosts: $db-hosts
+                    war:
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
 destroy:
     steps:
