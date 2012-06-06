@@ -94,9 +94,8 @@ launch:
                 precedingPhases: [ deploy-app ]
                 roles: [ lb-node ]
                 jattrs:
-                    petstore:
-                        lb:
-                            nodes: $app-hosts
+                    haproxy.rebalance:
+                        nodes: $app-hosts
 
     return:
         app-url:
@@ -150,9 +149,8 @@ scale-up:
                 precedingPhases: [ deploy-app ]
                 roles: [ lb-node ]
                 jattrs:
-                    petstore:
-                        lb:
-                            nodes: $app-hosts
+                    haproxy.rebalance:
+                        nodes: $app-hosts
 
 scale-down:
     parameters:
@@ -174,9 +172,8 @@ scale-down:
                 precedingPhases: [ deploy-app ]
                 roles: [ lb-node ]
                 jattrs:
-                    petstore:
-                        lb:
-                            nodes: $app-hosts
+                    haproxy.rebalance:
+                        nodes: $app-hosts
 
 update:
     parameters:
