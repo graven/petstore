@@ -1,4 +1,4 @@
 jdbc.driverClassName=com.mysql.jdbc.Driver
-jdbc.url=jdbc:mysql://<%= @variables['hosts'] %>:<%= @variables['port'] %>/<%= @variables['database'] %>
-jdbc.username=<%= @variables['user'] %>
+jdbc.url=jdbc:mysql://<%= @variables['hosts'].join(",") %>:<%= @variables['port'] %>/<%= @variables['database'] %>
+jdbc.username=<%= @variables['username'] %>
 jdbc.password=<%= @variables['password'] %>

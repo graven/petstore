@@ -1,11 +1,9 @@
 use jpetstore;
 
 create table if not exists instance (
-    ip varchar(80) not null,
-primary key (ip))
+    ipaddress varchar(80) not null,
+primary key (ipaddress))
 type=innodb
-min_rows=0
-max_rows=1000
 pack_keys=default
 row_format=default;
 
@@ -32,9 +30,9 @@ create table if not exists signon (
     password varchar(25)  not null,  
 primary key (username)) 
 type=innodb 
-min_rows=0 
-max_rows=1000  
-pack_keys=default 
+min_rows=0
+max_rows=1000
+pack_keys=default
 row_format=default 
 comment='cadastro de usu�rios';
 

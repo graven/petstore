@@ -59,8 +59,9 @@ launch:
                 precedingPhases: [ install-db ]
                 roles: [ db-node ]
                 jattrs:
-                    setup-database:
-                        script: "https://schema-with-test-data-location"
+                    database:
+                        scheme: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-mysql-schema.sql"
+                        data: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-mysql-dataload.sql"
 
         - deploy-app:
             action: war.deploy
@@ -69,24 +70,21 @@ launch:
                 precedingPhases: [ install-app ]
                 roles: [ app-node ]
                 jattrs:
-                    petstore:
-                        db:
-                            $db-hosts
-                        app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                    war:
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
 
-        # Strawman... We need to make this configuration action explicit. Let's discuss how it might look.
-        #- configure-datasource:
-        #    action: propfile.replace
-        #    phase: deploy-app
-        #        precedingPhases: [ deploy-app, deploy-db ]
-        #    parameters:
-        #        jattrs:
-        #            propfile.replace:
-        #                source:
-        #                    "%DB%"
-        #                target:
-        #                    $dbhosts
+        - configure-datasource:
+            action: propfile.configure
+            parameters:
+                phase: configure-app
+                precedingPhases: [ deploy-app, deploy-db ]
+                roles: [ app-node ]
+                jattrs:
+                    configure:
+                        source: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        to: "jdbc.properties"
+                        variables:
+                            hosts: $db-hosts
 
         - setup-lb:
             action: haproxy.rebalance
@@ -94,9 +92,8 @@ launch:
                 precedingPhases: [ deploy-app ]
                 roles: [ lb-node ]
                 jattrs:
-                    petstore:
-                        lb:
-                            nodes: $app-hosts
+                    haproxy.rebalance:
+                        nodes: $app-hosts
 
     return:
         app-url:
@@ -138,11 +135,21 @@ scale-up:
                 precedingPhases: [ install-app ]
                 roles: [ app-node ]
                 jattrs:
-                    petstore:
-                        db:
-                            $db-hosts
-                        app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                    war:
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+
+        - configure-datasource:
+            action: propfile.configure
+            parameters:
+                phase: configure-app
+                precedingPhases: [ deploy-app ]
+                roles: [ app-node ]
+                jattrs:
+                    configure:
+                        source: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        to: "jdbc.properties"
+                        variables:
+                            hosts: $db-hosts
 
         - update-lb:
             action: haproxy.rebalance
@@ -150,9 +157,8 @@ scale-up:
                 precedingPhases: [ deploy-app ]
                 roles: [ lb-node ]
                 jattrs:
-                    petstore:
-                        lb:
-                            nodes: $app-hosts
+                    haproxy.rebalance:
+                        nodes: $app-hosts
 
 scale-down:
     parameters:
@@ -171,12 +177,11 @@ scale-down:
         - update-lb:
             action: haproxy.rebalance
             parameters:
-                precedingPhases: [ deploy-app ]
+                precedingPhases: [ destroy ]
                 roles: [ lb-node ]
                 jattrs:
-                    petstore:
-                        lb:
-                            nodes: $app-hosts
+                    haproxy.rebalance:
+                        nodes: $app-hosts
 
 update:
     parameters:
@@ -191,13 +196,24 @@ update:
         - redeploy-app:
             action: war.deploy
             parameters:
+                phase: deploy-app
                 roles: [ app-node ]
                 jattrs:
-                    petstore:
-                        db:
-                            $db-hosts
-                        app:
-                            war: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                    war:
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+
+        - configure-datasource:
+            action: propfile.configure
+            parameters:
+                phase: configure-app
+                precedingPhases: [ deploy-app ]
+                roles: [ app-node ]
+                jattrs:
+                    configure:
+                        source: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        to: "jdbc.properties"
+                        variables:
+                            hosts: $db-hosts
 
 destroy:
     steps:
