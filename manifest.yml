@@ -99,6 +99,9 @@ launch:
         app-url:
             description: Url to the application
             value: http://${lb-hosts}
+        haproxy-url:
+            description: Url to haproxy stats
+            value: http://${lb-hosts}:22002/
 
 scale-up:
     parameters:
