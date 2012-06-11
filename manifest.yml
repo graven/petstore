@@ -5,8 +5,11 @@ launch:
             default: 1
             min: 1
             max: 20
+        - app-fork:
+            description: Source control fork
+            default: "graven"
         - app-branch:
-            description: Source control app-branch
+            description: Source control branch
             default: "master"
         - app-version:
             description: Version of the build artifacts
@@ -63,8 +66,8 @@ launch:
                 roles: [ db-node ]
                 jattrs:
                     database:
-                        scheme: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-mysql-schema.sql"
-                        data: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-mysql-dataload.sql"
+                        scheme: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-mysql-schema.sql"
+                        data: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-mysql-dataload.sql"
 
         - deploy-app:
             action: war.deploy
@@ -84,7 +87,7 @@ launch:
                 roles: [ app-node ]
                 jattrs:
                     configure:
-                        source: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        source: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-database.properties.erb"
                         to: "jdbc.properties"
                         variables:
                             hosts: $db-hosts
@@ -147,7 +150,7 @@ scale-up:
                 roles: [ app-node ]
                 jattrs:
                     configure:
-                        source: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        source: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-database.properties.erb"
                         to: "jdbc.properties"
                         variables:
                             hosts: $db-hosts
@@ -214,7 +217,7 @@ update:
                 roles: [ app-node ]
                 jattrs:
                     configure:
-                        source: "https://raw.github.com/dieu/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        source: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-database.properties.erb"
                         to: "jdbc.properties"
                         variables:
                             hosts: $db-hosts
