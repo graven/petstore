@@ -5,6 +5,9 @@ launch:
             default: 1
             min: 1
             max: 20
+        - app-branch:
+            description: Source control app-branch
+            default: "master"
         - app-version:
             description: Version of the build artifacts
             default: "1.0.0-SNAPSHOT"
@@ -71,7 +74,7 @@ launch:
                 roles: [ app-node ]
                 jattrs:
                     war:
-                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
 
         - configure-datasource:
             action: propfile.configure
@@ -110,12 +113,7 @@ scale-up:
             default: 1
             min: 1
             max: 20
-        - app-version:
-            description: Version of the build artifacts
-            default: "1.0.0-SNAPSHOT"
-            enum:
-                "Latest": "1.0.0-SNAPSHOT"
-                "1.0 Stable": "1.0.0"
+
     steps:
         - grow-app-tier:
             action: compute.grow
@@ -139,7 +137,7 @@ scale-up:
                 roles: [ app-node ]
                 jattrs:
                     war:
-                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
 
         - configure-datasource:
             action: propfile.configure
@@ -188,6 +186,9 @@ scale-down:
 
 update:
     parameters:
+        - app-branch:
+            description: Code branch
+            default: "master"
         - app-version:
             description: Version of the build artifacts
             default: "1.0.0-SNAPSHOT"
@@ -203,7 +204,7 @@ update:
                 roles: [ app-node ]
                 jattrs:
                     war:
-                        deploy: "https://s3.amazonaws.com/undeploy-petstore/org.springframework.samples.jpetstore-${app-version}.war"
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
 
         - configure-datasource:
             action: propfile.configure
