@@ -10,7 +10,7 @@ launch:
             default: "graven"
         - app-branch:
             description: Source control branch
-            default: "master"
+            default: "HEAD"
         - app-version:
             description: Version of the build artifacts
             default: "1.0.0-SNAPSHOT"
@@ -66,8 +66,8 @@ launch:
                 roles: [ db-node ]
                 jattrs:
                     database:
-                        scheme: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-mysql-schema.sql"
-                        data: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-mysql-dataload.sql"
+                        scheme: "https://raw.github.com/${app-fork}/petstore/${app-branch}/db/mysql/jpetstore-mysql-schema.sql"
+                        data:   "https://raw.github.com/${app-fork}/petstore/${app-branch}/db/mysql/jpetstore-mysql-dataload.sql"
 
         - deploy-app:
             action: war.deploy
@@ -77,7 +77,7 @@ launch:
                 roles: [ app-node ]
                 jattrs:
                     war:
-                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-fork}/origin/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
 
         - configure-datasource:
             action: propfile.configure
@@ -87,7 +87,7 @@ launch:
                 roles: [ app-node ]
                 jattrs:
                     configure:
-                        source: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        source: "https://raw.github.com/${app-fork}/petstore/${app-branch}/db/mysql/jpetstore-database.properties.erb"
                         to: "jdbc.properties"
                         variables:
                             hosts: $db-hosts
@@ -140,7 +140,7 @@ scale-up:
                 roles: [ app-node ]
                 jattrs:
                     war:
-                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-fork}/origin/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
 
         - configure-datasource:
             action: propfile.configure
@@ -150,7 +150,7 @@ scale-up:
                 roles: [ app-node ]
                 jattrs:
                     configure:
-                        source: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        source: "https://raw.github.com/${app-fork}/petstore/${app-branch}/db/mysql/jpetstore-database.properties.erb"
                         to: "jdbc.properties"
                         variables:
                             hosts: $db-hosts
@@ -207,7 +207,7 @@ update:
                 roles: [ app-node ]
                 jattrs:
                     war:
-                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
+                        deploy: "https://s3.amazonaws.com/undeploy-petstore/${app-fork}/origin/${app-branch}/org.springframework.samples.jpetstore-${app-version}.war"
 
         - configure-datasource:
             action: propfile.configure
@@ -217,7 +217,7 @@ update:
                 roles: [ app-node ]
                 jattrs:
                     configure:
-                        source: "https://raw.github.com/${app-fork}/petstore/master/db/mysql/jpetstore-database.properties.erb"
+                        source: "https://raw.github.com/${app-fork}/petstore/${app-branch}/db/mysql/jpetstore-database.properties.erb"
                         to: "jdbc.properties"
                         variables:
                             hosts: $db-hosts
