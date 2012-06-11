@@ -116,6 +116,18 @@ scale-up:
             default: 1
             min: 1
             max: 20
+        - app-fork:
+            description: Source control fork
+            default: "graven"
+        - app-branch:
+            description: Source control branch
+            default: "HEAD"
+        - app-version:
+            description: Version of the build artifacts
+            default: "1.0.0-SNAPSHOT"
+            enum:
+                "Latest": "1.0.0-SNAPSHOT"
+                "1.0 Stable": "1.0.0"
 
     steps:
         - grow-app-tier:
@@ -189,15 +201,18 @@ scale-down:
 
 update:
     parameters:
+        - app-fork:
+            description: Source control fork
+            default: "graven"
         - app-branch:
-            description: Code branch
-            default: "master"
+            description: Source control branch
+            default: "HEAD"
         - app-version:
             description: Version of the build artifacts
             default: "1.0.0-SNAPSHOT"
             enum:
-                Latest: "1.0.0-SNAPSHOT"
-                1.0 Stable: "1.0.0"
+                "Latest": "1.0.0-SNAPSHOT"
+                "1.0 Stable": "1.0.0"
 
     steps:
         - redeploy-app:
