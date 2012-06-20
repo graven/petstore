@@ -16,7 +16,7 @@ launch:
             default: "1.0.0-SNAPSHOT"
             enum:
                 "Latest": "1.0.0-SNAPSHOT"
-                "1.0 Stable": "1.0.0"
+                "Stable": "1.0.0"
     steps:
         - provision-db-tier:
             action: compute.grow
@@ -127,7 +127,7 @@ scale-up:
             default: "1.0.0-SNAPSHOT"
             enum:
                 "Latest": "1.0.0-SNAPSHOT"
-                "1.0 Stable": "1.0.0"
+                "Stable": "1.0.0"
 
     steps:
         - grow-app-tier:
@@ -212,7 +212,7 @@ update:
             default: "1.0.0-SNAPSHOT"
             enum:
                 "Latest": "1.0.0-SNAPSHOT"
-                "1.0 Stable": "1.0.0"
+                "Stable": "1.0.0"
 
     steps:
         - redeploy-app:
