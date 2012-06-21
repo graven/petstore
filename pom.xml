@@ -56,6 +56,13 @@
 			<version>${dbcp.version}</version>
 		</dependency>
 
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+
+
 		<!-- Needed for fileupload -->
 		<dependency>
 			<groupId>commons-io</groupId>
