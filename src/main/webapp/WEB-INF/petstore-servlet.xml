@@ -72,6 +72,10 @@
 		<property name="petStore" ref="petStore"/>
 	</bean>
 
+    <bean name="/git.do" class="org.springframework.samples.jpetstore.web.spring.GitController">
+        <property name="gitRepoState" ref="gitRepositoryInformation"/>
+    </bean>
+
 
 	<!-- ========================= DEFINITIONS OF PROTECTED CONTROLLERS ========================= -->
 
