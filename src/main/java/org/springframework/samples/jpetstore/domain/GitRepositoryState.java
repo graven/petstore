@@ -7,10 +7,8 @@ package org.springframework.samples.jpetstore.domain;
 public class GitRepositoryState {
     String branch;                  // =${git.branch}
     String commitId;                // =${git.commit.id}
-    String commitIdAbbrev;          // =${git.commit.id.abbrev}
     String buildUserName;           // =${git.build.user.name}
     String buildUserEmail;          // =${git.build.user.email}
-    String buildTime;               // =${git.build.time}
     String commitUserName;          // =${git.commit.user.name}
     String commitUserEmail;         // =${git.commit.user.email}
     String commitMessageFull;       // =${git.commit.message.full}
@@ -36,14 +34,6 @@ public class GitRepositoryState {
         this.commitId = commitId;
     }
 
-    public String getCommitIdAbbrev() {
-        return commitIdAbbrev;
-    }
-
-    public void setCommitIdAbbrev(String commitIdAbbrev) {
-        this.commitIdAbbrev = commitIdAbbrev;
-    }
-
     public String getBuildUserName() {
         return buildUserName;
     }
@@ -58,14 +48,6 @@ public class GitRepositoryState {
 
     public void setBuildUserEmail(String buildUserEmail) {
         this.buildUserEmail = buildUserEmail;
-    }
-
-    public String getBuildTime() {
-        return buildTime;
-    }
-
-    public void setBuildTime(String buildTime) {
-        this.buildTime = buildTime;
     }
 
     public String getCommitUserName() {
